@@ -1,61 +1,105 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
-import { restaurantInfo } from "@/lib/menu-data";
+import { menuSections, restaurantInfo } from "@/lib/menu-data";
 
 export default function HomePage() {
+  useEffect(() => {
+    const revealNodes = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-revealed");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.16, rootMargin: "0px 0px -40px 0px" }
+    );
+    revealNodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <section className="grid items-center gap-8 rounded-3xl bg-white/80 p-6 shadow-sm ring-1 ring-cacao/10 md:grid-cols-2 md:p-10">
-        <div className="space-y-5">
-          <p className="inline-block rounded-full bg-cilantro/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cilantro">
-            Authentic {restaurantInfo.cuisine}
-          </p>
-          <h1 className="text-4xl font-black tracking-tight text-cacao sm:text-5xl">
-            Brothers Taco House
-          </h1>
-          <p className="text-lg text-cacao/80">
-            A Houston staple serving hearty breakfast tacos, lunch classics, and bold house flavors made for busy
-            mornings and satisfying midday meals.
-          </p>
-          <Link
-            href="/menu"
-            className="inline-flex rounded-full bg-chili px-6 py-3 text-sm font-bold uppercase tracking-wide text-crema transition hover:bg-salsa"
-          >
-            View Menu
-          </Link>
-        </div>
-        <div className="flex items-center justify-center rounded-2xl bg-crema p-4 ring-1 ring-cacao/10">
-          <Logo className="mx-auto h-44 w-auto" />
+    <main>
+      <section className="hero" id="top">
+        <div className="hero__layer" />
+        <div className="hero__content" data-reveal>
+          <p className="hero__script">{restaurantInfo.scriptTagline}</p>
+          <h1>{restaurantInfo.name}</h1>
+          <p>{restaurantInfo.tagline}</p>
+          <div className="hero__actions">
+            <a className="btn btn--primary" href="#menu">
+              View Menu
+            </a>
+            <a className="btn btn--secondary" href="#contact">
+              Contact Us
+            </a>
+          </div>
         </div>
       </section>
 
-      <section className="mt-10 grid gap-6 md:grid-cols-2">
-        <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-cacao/10">
-          <h2 className="text-xl font-extrabold text-cacao">Location</h2>
-          <p className="mt-2 text-cacao/80">{restaurantInfo.address}</p>
-        </article>
-        <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-cacao/10">
-          <h2 className="text-xl font-extrabold text-cacao">Hours of Operation</h2>
-          <ul className="mt-2 list-disc pl-5 text-cacao/80">
-            <li>Monday: {restaurantInfo.hours}</li>
-            <li>Tuesday: {restaurantInfo.hours}</li>
-            <li>Wednesday: {restaurantInfo.hours}</li>
-            <li>Thursday: {restaurantInfo.hours}</li>
-            <li>Friday: {restaurantInfo.hours}</li>
-            <li>Saturday: {restaurantInfo.hours}</li>
-            <li>Sunday: {restaurantInfo.hours}</li>
-          </ul>
-        </article>
+      <section className="section about-section reveal-on-scroll" id="about" data-reveal>
+        <div className="section-heading">
+          <p className="section-script">Our Story</p>
+          <h2>Rooted in Family, Built on Flavor</h2>
+        </div>
+        <div className="about-grid">
+          <div className="photo-card">
+            <img
+              src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=80"
+              alt="Warm Mexican dishes prepared family style"
+            />
+          </div>
+          <div className="about-copy">
+            <p>
+              Brothers Taco House began with one small kitchen, a handwritten menu, and recipes carried through
+              generations. We cook with patience and pride: dried chiles toasted by hand, masa pressed fresh, and salsas
+              balanced for depth, heat, and soul.
+            </p>
+            <p>
+              Our dining room is a daily celebration of neighborhood life, where families gather, friends reconnect, and
+              every plate is treated like a house favorite.
+            </p>
+          </div>
+        </div>
       </section>
 
-      <section className="mt-10 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-cacao/10">
-        <h2 className="text-2xl font-black text-cacao">About Brothers Taco House</h2>
-        <p className="mt-3 leading-7 text-cacao/80">
-          Brothers Taco House celebrates simple, satisfying cooking rooted in Mexican and Latin American traditions.
-          Known for quick service and familiar comfort, the kitchen focuses on flavorful tacos, breakfast favorites, and
-          daily lunch plates that keep regulars coming back.
-        </p>
+      <div className="section-divider" aria-hidden="true">
+        <span />
+      </div>
+
+      <section className="section menu-section reveal-on-scroll" id="menu" data-reveal>
+        <div className="section-heading">
+          <p className="section-script">Flavor of the Day</p>
+          <h2>Menu</h2>
+        </div>
+        <div className="menu-grid">
+          {menuSections.map((section) => (
+            <article key={section.title} className="menu-card">
+              <h3>{section.title}</h3>
+              {section.subtitle ? <p className="menu-card__subtitle">{section.subtitle}</p> : null}
+              <ul>
+                {section.items.map((item) => (
+                  <li key={item.name} className="menu-item">
+                    <div>
+                      <p className="menu-item__name">{item.name}</p>
+                      <p className="menu-item__description">{item.description}</p>
+                    </div>
+                    <span className="menu-item__price">{item.price}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+        <div className="menu-link-row">
+          <Link href="/menu">Open Full Menu Page</Link>
+        </div>
       </section>
+
     </main>
   );
 }
